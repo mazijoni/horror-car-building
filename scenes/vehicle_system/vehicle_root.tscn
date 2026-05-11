@@ -1,0 +1,32 @@
+[gd_scene load_steps=7 format=3 uid="uid://bv3k9r2m4t7wq"]
+
+[ext_resource type="Script" path="res://scripts/vehicle_system/systems/vehicle_root.gd" id="1_vr"]
+[ext_resource type="Script" path="res://scripts/vehicle_system/systems/connection_manager.gd" id="2_cm"]
+[ext_resource type="Script" path="res://scripts/vehicle_system/systems/physics_manager.gd" id="3_pm"]
+[ext_resource type="Script" path="res://scripts/vehicle_system/systems/damage_system.gd" id="4_ds"]
+[ext_resource type="Script" path="res://scripts/vehicle_system/systems/power_system.gd" id="5_ps"]
+[ext_resource type="Script" path="res://scripts/vehicle_system/systems/serialization_manager.gd" id="6_sm"]
+
+[node name="VehicleRoot" type="RigidBody3D"]
+script = ExtResource("1_vr")
+
+[node name="Parts" type="Node3D" parent="."]
+
+[node name="MechanicalBodies" type="Node3D" parent="."]
+
+[node name="Joints" type="Node3D" parent="."]
+
+[node name="ConnectionManager" type="Node" parent="."]
+script = ExtResource("2_cm")
+
+[node name="PhysicsManager" type="Node" parent="."]
+script = ExtResource("3_pm")
+
+[node name="DamageSystem" type="Node" parent="."]
+script = ExtResource("4_ds")
+
+[node name="PowerSystem" type="Node" parent="."]
+script = ExtResource("5_ps")
+
+[node name="SerializationManager" type="Node" parent="."]
+script = ExtResource("6_sm")

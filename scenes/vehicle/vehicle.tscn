@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bx3k7m9q2t5vy"]
+
+[ext_resource type="Script" uid="uid://cw4n8p1r6j2hs" path="res://scripts/vehicle/vehicle.gd" id="1_vh"]
+
+[node name="Vehicle" type="RigidBody3D"]
+script = ExtResource("1_vh")

@@ -71,6 +71,7 @@ var vault_exit_speed: float = 0.0
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	add_to_group("Player")
 
 
 func _input(event: InputEvent) -> void:
