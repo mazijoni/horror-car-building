@@ -1,0 +1,167 @@
+[gd_scene format=4 uid="uid://3n5vw27gsvem"]
+
+[ext_resource type="Script" uid="uid://ddujw151dgv40" path="res://scripts/player/player.gd" id="1_3vyb7"]
+[ext_resource type="Texture2D" uid="uid://ca6c6hgv6kn7n" path="res://icon.svg" id="2_fjrip"]
+[ext_resource type="Shader" uid="uid://boqebco5rvd7a" path="res://scripts/post-processing.gdshader" id="2_g2els"]
+[ext_resource type="Script" uid="uid://b3ulviqw2wvlr" path="res://scripts/fps.gd" id="3_dqkch"]
+[ext_resource type="FontFile" uid="uid://cflo6gk5l0fd1" path="res://fonts/HomeVideo-Bold.ttf" id="3_qlg0r"]
+[ext_resource type="Shader" uid="uid://dva6e5bivccqn" path="res://scripts/outline.gdshader" id="5_tuyoq"]
+[ext_resource type="Script" uid="uid://hnmidh3ui1h0" path="res://scripts/healtbar.gd" id="6_smehm"]
+[ext_resource type="FontFile" uid="uid://baj32uqx4sa6f" path="res://fonts/HomeVideo-Regular.ttf" id="7_ur7pv"]
+[ext_resource type="Texture2D" uid="uid://bwu5ryjhx11op" path="res://textures/PNG/Dark/texture_08.png" id="8_d2wvv"]
+[ext_resource type="Texture2D" uid="uid://cjdia48sv8tfg" path="res://textures/PNG/Orange/texture_09.png" id="8_y4r1p"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_tx1dd"]
+radius = 0.4
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_gymyn"]
+radius = 0.4
+height = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qhqgy"]
+shader = ExtResource("2_g2els")
+shader_parameter/exposure = 1.0
+shader_parameter/contrast = 1.05
+shader_parameter/saturation = 0.9
+shader_parameter/enable_pixelate = false
+shader_parameter/pixel_factor = 3.0
+shader_parameter/enable_posterize = true
+shader_parameter/color_levels = 16.0
+shader_parameter/dither_strength = 0.35
+shader_parameter/chrom_aberration = 0.0130000006175
+shader_parameter/vignette_strength = 1.0
+shader_parameter/grain_strength = 0.2
+shader_parameter/tint_color = Vector3(0.95, 1.03, 0.9)
+shader_parameter/tint_strength = 0.15
+shader_parameter/viewport_size_override = Vector2(0, 0)
+
+[sub_resource type="QuadMesh" id="QuadMesh_fjrip"]
+size = Vector2(2, 2)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_smehm"]
+render_priority = 0
+shader = ExtResource("5_tuyoq")
+shader_parameter/step_count = 3
+shader_parameter/thickness = 1.5000000074506
+shader_parameter/darken_amount = 0.6499999854712
+shader_parameter/fade_start = 100.0
+shader_parameter/fade_length = 200.0
+
+[node name="Player" type="CharacterBody3D" unique_id=937026462 groups=["Player"]]
+script = ExtResource("1_3vyb7")
+mouse_sens = 0.25
+head_tilt_strength = 0.2
+crouch_arm_look_strength = 0.7
+ledge_hang_offset = 1.6800000000000002
+vault_duration = 7.55
+
+[node name="standing_collision_shape" type="CollisionShape3D" parent="." unique_id=892635466]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_tx1dd")
+debug_color = Color(1, 0.72562015, 0.95299214, 1)
+
+[node name="chrouching_collision_shape" type="CollisionShape3D" parent="." unique_id=1720931197]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5042783, 0)
+shape = SubResource("CapsuleShape3D_gymyn")
+disabled = true
+debug_color = Color(0, 0.79607844, 0.92941177, 1)
+
+[node name="RayCast3D" type="RayCast3D" parent="." unique_id=1297925255]
+target_position = Vector3(0, 2, 0)
+
+[node name="LedgeCheckForward" type="RayCast3D" parent="." unique_id=1111111110]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
+target_position = Vector3(0, 0, -0.7)
+collision_mask = 2
+
+[node name="LedgeCheckTop" type="RayCast3D" parent="." unique_id=1111111120]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -0.6)
+collision_mask = 2
+
+[node name="Head" type="Node3D" parent="." unique_id=1099730811]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
+
+[node name="eyes" type="Node3D" parent="Head" unique_id=2131997925]
+
+[node name="Camera3D" type="Camera3D" parent="Head/eyes" unique_id=64322600]
+current = true
+fov = 60.0
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Head/eyes/Camera3D" unique_id=351791582]
+
+[node name="Test" type="Sprite2D" parent="Head/eyes/Camera3D/CanvasLayer" unique_id=1475138059]
+visible = false
+position = Vector2(416, 292)
+scale = Vector2(6.1093745, 4.3125)
+texture = ExtResource("2_fjrip")
+
+[node name="ColorRect" type="ColorRect" parent="Head/eyes/Camera3D/CanvasLayer" unique_id=825943605]
+material = SubResource("ShaderMaterial_qhqgy")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="FPS" type="Label" parent="Head/eyes/Camera3D/CanvasLayer" unique_id=717162889]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 58.0
+offset_top = -63.0
+offset_right = 98.0
+offset_bottom = -39.0
+grow_vertical = 0
+theme_override_fonts/font = ExtResource("3_qlg0r")
+theme_override_font_sizes/font_size = 26
+script = ExtResource("3_dqkch")
+
+[node name="ECGHealthBar" type="Control" parent="Head/eyes/Camera3D/CanvasLayer" unique_id=1434621516]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 65.0
+offset_top = 28.0
+offset_right = 265.0
+offset_bottom = 68.0
+script = ExtResource("6_smehm")
+scan_speed = 200.0
+fade_speed = 1.0
+base_amplitude = 7.0
+max_amplitude = 20.0
+point_spacing = 20
+
+[node name="HealthNumber" type="Label" parent="Head/eyes/Camera3D/CanvasLayer/ECGHealthBar" unique_id=983161866]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = -62.000004
+offset_top = -18.0
+offset_right = -22.000004
+offset_bottom = 5.0
+grow_vertical = 2
+scale = Vector2(1.5785466, 1.5785466)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/outline_size = 5
+theme_override_constants/shadow_outline_size = 6
+theme_override_fonts/font = ExtResource("7_ur7pv")
+text = "100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StaminaBar" type="TextureProgressBar" parent="Head/eyes/Camera3D/CanvasLayer" unique_id=210065756]
+offset_left = 35.0
+offset_top = 105.0
+offset_right = 1059.0
+offset_bottom = 1129.0
+scale = Vector2(0.20600557, 0.009914103)
+texture_under = ExtResource("8_d2wvv")
+texture_progress = ExtResource("8_y4r1p")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Head/eyes/Camera3D" unique_id=965788976]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.051)
+extra_cull_margin = 16384.0
+mesh = SubResource("QuadMesh_fjrip")
+surface_material_override/0 = SubResource("ShaderMaterial_smehm")
