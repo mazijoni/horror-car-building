@@ -25,6 +25,8 @@ var throttle_input: float = 0.0
 var steer_input: float    = 0.0
 var brake_input: float    = 0.0
 
+var _driver: Node3D = null
+
 var _is_frozen_empty: bool = true
 
 func _ready() -> void:
@@ -43,11 +45,26 @@ func _setup_systems() -> void:
 			p.part_destroyed.connect(_on_part_destroyed.bind(p))
 
 func _physics_process(delta: float) -> void:
+	_update_drive_input()
 	_apply_steering()
 	for gp: Vector3i in parts:
 		var p := parts[gp] as VehiclePartBase
 		if p:
 			p.physics_tick(delta)
+
+func _update_drive_input() -> void:
+	var bm := get_tree().get_first_node_in_group("build_manager")
+	if bm is BuildManager and (bm as BuildManager).is_building:
+		throttle_input = 0.0
+		steer_input    = 0.0
+		return
+	if not is_instance_valid(_driver):
+		_driver        = null
+		throttle_input = 0.0
+		steer_input    = 0.0
+		return
+	throttle_input = Input.get_axis("move_back", "move_forward")
+	steer_input    = Input.get_axis("move_right", "move_left")
 
 func _apply_steering() -> void:
 	for gp: Vector3i in parts:
@@ -116,7 +133,12 @@ func add_part(part: VehiclePartBase, gp: Vector3i, orient_idx: int) -> bool:
 	part.transform = Transform3D(local_basis, local_pos)
 	part.part_destroyed.connect(_on_part_destroyed.bind(part))
 
-	if part.definition.is_mechanical:
+	if part is WheelPart:
+		# Wheels still need a collision shape so they can be clicked-to-delete
+		# and block the player from walking through them.
+		_add_structural_shape(part)
+		_part_container.add_child(part)
+	elif part.definition.is_mechanical:
 		_setup_mechanical_part(part)
 		_mech_container.add_child(part)
 	else:
@@ -138,7 +160,9 @@ func remove_part(gp: Vector3i) -> void:
 		return
 	var part := parts[gp] as VehiclePartBase
 
-	if part.definition and part.definition.is_mechanical:
+	if part is WheelPart:
+		_remove_structural_shape(part)
+	elif part.definition and part.definition.is_mechanical:
 		_remove_mechanical_part(part)
 	else:
 		_remove_structural_shape(part)
@@ -158,14 +182,18 @@ func remove_part(gp: Vector3i) -> void:
 		_check_split()
 
 func _add_structural_shape(part: VehiclePartBase) -> void:
-	var shape := part.get_collision_shape()
-	if shape == null:
-		return
-	var sid := create_shape_owner(self)
-	var orient := PartDefinition.get_orientation(part.orientation_idx)
-	shape_owner_add_shape(sid, shape)
-	shape_owner_set_transform(sid, Transform3D(orient, grid_to_local(part.grid_position)))
-	part.shape_owner_id = sid
+	for child in part.get_children():
+		if child is CollisionShape3D:
+			var src := child as CollisionShape3D
+			if src.shape == null:
+				return
+			var sid := create_shape_owner(self)
+			var orient := PartDefinition.get_orientation(part.orientation_idx)
+			var part_t := Transform3D(orient, grid_to_local(part.grid_position))
+			shape_owner_add_shape(sid, src.shape)
+			shape_owner_set_transform(sid, part_t * src.transform)
+			part.shape_owner_id = sid
+			return
 
 func _remove_structural_shape(part: VehiclePartBase) -> void:
 	if part.shape_owner_id >= 0:
@@ -177,10 +205,18 @@ func _setup_mechanical_part(part: VehiclePartBase) -> void:
 	body.name = "MechBody_" + str(part.grid_position)
 	body.mass = part.definition.mass if part.definition else 10.0
 	body.linear_damp  = 0.5
-	body.angular_damp = 2.0
+	# Wheels need low angular damping so they spin freely when unpowered.
+	body.angular_damp = 0.05 if part is WheelPart else 2.0
+	var cs_src: CollisionShape3D = null
+	for child in part.get_children():
+		if child is CollisionShape3D:
+			cs_src = child as CollisionShape3D
+			break
 	var cshape := CollisionShape3D.new()
-	cshape.shape = part.get_collision_shape()
-	if cshape.shape == null:
+	if cs_src:
+		cshape.shape = cs_src.shape
+		cshape.transform = cs_src.transform
+	else:
 		cshape.disabled = true
 	body.add_child(cshape)
 	_mech_container.add_child(body)
@@ -190,9 +226,7 @@ func _setup_mechanical_part(part: VehiclePartBase) -> void:
 	)
 	part.mechanical_body = body
 
-	if part is WheelPart:
-		connection_manager.create_wheel_joint(part as WheelPart)
-	elif part is HingePart:
+	if part is HingePart:
 		connection_manager.create_generic_joint(part, -1, 1)
 
 func _remove_mechanical_part(part: VehiclePartBase) -> void:

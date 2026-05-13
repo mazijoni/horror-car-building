@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+const INTERACT_RANGE: float = 3.0
+
 # Player Nodes
 @onready var head = $Head
 @onready var eyes = $Head/eyes
@@ -68,6 +70,9 @@ var vault_end_pos := Vector3.ZERO
 @export var vault_onto_height: float = 1.35
 var vault_exit_speed: float = 0.0
 
+# Driving state
+var _driving_seat: SeatPart = null
+
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -75,6 +80,14 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("interact"):
+		if _driving_seat:
+			_dismount()
+		else:
+			_try_mount()
+		get_viewport().set_input_as_handled()
+		return
+
 	if event is InputEventMouseMotion:
 		rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
 		head.rotate_x(deg_to_rad(-event.relative.y * mouse_sens))
@@ -95,6 +108,17 @@ func _input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	# ── Driving: lock player to seat, let vehicle handle input ────────────────
+	if _driving_seat:
+		if not is_instance_valid(_driving_seat) or not _driving_seat.is_occupied():
+			_dismount()
+		else:
+			# Smoothly follow the seat (which moves with the vehicle).
+			var seat_pos: Vector3 = _driving_seat.global_position + Vector3(0, 0.6, 0)
+			global_position = global_position.lerp(seat_pos, 0.4)
+			velocity = Vector3.ZERO
+			return
+
 	if ledge_release_timer > 0:
 		ledge_release_timer -= delta
 
@@ -308,3 +332,40 @@ func _handle_ledge_hang(delta: float) -> void:
 	if Input.is_action_just_pressed("crouch"):
 		is_ledge_grabbing = false
 		ledge_release_timer = LEDGE_RELEASE_COOLDOWN
+
+
+# ── Seat interaction ──────────────────────────────────────────────────────────
+
+func _try_mount() -> bool:
+	var camera := get_viewport().get_camera_3d()
+	if not camera:
+		return false
+	var space := get_world_3d().direct_space_state
+	var origin := camera.global_position
+	var fwd    := -camera.global_transform.basis.z
+	var q := PhysicsRayQueryParameters3D.create(origin, origin + fwd * INTERACT_RANGE)
+	q.exclude = [self]
+	var hit := space.intersect_ray(q)
+	if hit.is_empty():
+		return false
+	var collider = hit["collider"]
+	if not collider is VehicleRoot:
+		return false
+	var vehicle := collider as VehicleRoot
+	var gp := vehicle.world_to_grid(hit["position"] - hit["normal"] * VehicleRoot.CELL_SIZE * 0.25)
+	var part := vehicle.parts.get(gp) as VehiclePartBase
+	if not part is SeatPart:
+		return false
+	var seat := part as SeatPart
+	if seat.is_occupied():
+		return false
+	_driving_seat = seat
+	seat.enter(self)
+	return true
+
+
+func _dismount() -> void:
+	if _driving_seat:
+		_driving_seat.exit()
+	_driving_seat = null
+	velocity = Vector3.ZERO

@@ -51,6 +51,10 @@ var _mode_label: Label
 var _selected_name_label: Label
 var _hint_label: Label
 var _info_panel: PanelContainer
+var _wheel_panel: PanelContainer
+var _wheel_motor_btn: Button
+var _wheel_steer_btn: Button
+var _hovered_wheel: WheelPart = null
 
 # ── Hand item (block shown in player's view) ───────────────────────────────────
 var _hand_node: Node3D
@@ -70,6 +74,7 @@ func _deferred_init() -> void:
 	_ghost = GhostPreview.new()
 	get_tree().current_scene.add_child(_ghost)
 	_init_hud()
+	_init_wheel_panel()
 	_init_hand_item()
 	_refresh_hud()
 
@@ -217,6 +222,7 @@ func _make_label(text: String, font_size: int, color: Color) -> Label:
 func _refresh_hud() -> void:
 	_refresh_hotbar()
 	_refresh_vehicle_info()
+	_refresh_wheel_panel()
 
 func _refresh_hotbar() -> void:
 	for i in _hotbar_slots.size():
@@ -763,3 +769,51 @@ func _make_hand_mesh(def: PartDefinition) -> Mesh:
 	var s := VehicleRoot.CELL_SIZE * 0.68
 	bm.size = Vector3(s, s, s)
 	return bm
+
+# ── Wheel property panel ──────────────────────────────────────────────────────
+
+func _init_wheel_panel() -> void:
+	_wheel_panel = PanelContainer.new()
+	_wheel_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_wheel_panel.position = Vector2(20, 80)
+	_style_panel(_wheel_panel, Color(0.05, 0.05, 0.08, 0.92))
+	_wheel_panel.visible = false
+	_canvas.add_child(_wheel_panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	_wheel_panel.add_child(vbox)
+
+	vbox.add_child(_make_label("⚙ WHEEL SETTINGS", 14, Color(1.0, 0.85, 0.1)))
+	vbox.add_child(HSeparator.new())
+
+	_wheel_motor_btn = Button.new()
+	_wheel_motor_btn.text = "Motor: OFF"
+	_wheel_motor_btn.pressed.connect(_toggle_wheel_motor)
+	vbox.add_child(_wheel_motor_btn)
+
+	_wheel_steer_btn = Button.new()
+	_wheel_steer_btn.text = "Steering: OFF"
+	_wheel_steer_btn.pressed.connect(_toggle_wheel_steering)
+	vbox.add_child(_wheel_steer_btn)
+
+func _refresh_wheel_panel() -> void:
+	_hovered_wheel = null
+	if is_building and _target_vehicle and _removal_valid:
+		var part := _target_vehicle.parts.get(_hovered_remove_pos) as VehiclePartBase
+		if part is WheelPart:
+			_hovered_wheel = part as WheelPart
+	_wheel_panel.visible = _hovered_wheel != null
+	if _hovered_wheel:
+		_wheel_motor_btn.text  = "Motor:    " + ("ON ✓" if _hovered_wheel.is_motor   else "OFF")
+		_wheel_steer_btn.text  = "Steering: " + ("ON ✓" if _hovered_wheel.is_steering else "OFF")
+
+func _toggle_wheel_motor() -> void:
+	if _hovered_wheel:
+		_hovered_wheel.is_motor = not _hovered_wheel.is_motor
+		_refresh_wheel_panel()
+
+func _toggle_wheel_steering() -> void:
+	if _hovered_wheel:
+		_hovered_wheel.is_steering = not _hovered_wheel.is_steering
+		_refresh_wheel_panel()

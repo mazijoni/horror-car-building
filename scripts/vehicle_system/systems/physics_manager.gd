@@ -16,7 +16,6 @@ func _physics_process(delta: float) -> void:
 		return
 	_update_center_of_mass()
 	_update_delta_v()
-	_update_wheel_suspension(delta)
 	_distribute_impact_stress()
 
 func _update_center_of_mass() -> void:
@@ -37,22 +36,6 @@ func _update_delta_v() -> void:
 	var current_vel: Vector3 = _vehicle.linear_velocity
 	_delta_v_magnitude = (current_vel - _prev_velocity).length()
 	_prev_velocity = current_vel
-
-func _update_wheel_suspension(delta: float) -> void:
-	for gp: Vector3i in _vehicle.parts:
-		var part := _vehicle.parts[gp] as VehiclePartBase
-		if not (part is WheelPart):
-			continue
-		var wheel := part as WheelPart
-		if not wheel.mechanical_body:
-			continue
-		var chassis_anchor: Vector3 = _vehicle.to_global(_vehicle.grid_to_local(gp))
-		var wheel_pos: Vector3 = wheel.mechanical_body.global_position
-		var local_diff: float = _vehicle.to_local(wheel_pos).y - _vehicle.grid_to_local(gp).y
-		var velocity_y: float = (wheel.mechanical_body.linear_velocity - _vehicle.linear_velocity).dot(_vehicle.global_basis.y)
-		var spring_force: float = -wheel.suspension_stiffness * local_diff - wheel.suspension_damping * velocity_y
-		wheel.mechanical_body.apply_central_force(_vehicle.global_basis.y * spring_force)
-		_vehicle.apply_force(-_vehicle.global_basis.y * spring_force, chassis_anchor - _vehicle.global_position)
 
 func _distribute_impact_stress() -> void:
 	if _delta_v_magnitude < 2.0:

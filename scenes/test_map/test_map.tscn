@@ -29,20 +29,20 @@ light_energy = 0.675
 shadow_enabled = true
 
 [node name="Floor" type="CSGBox3D" parent="." unique_id=334334133]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5267944, -0.5, 0)
 use_collision = true
-size = Vector3(30, 1, 30)
+size = Vector3(45.05359, 1, 30)
 
 [node name="LedgeLow" type="CSGBox3D" parent="." unique_id=1188494577]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.4, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.7961426, 0.4, -6.121826)
 use_collision = true
 collision_layer = 3
-size = Vector3(3, 0.8, 3)
+size = Vector3(6.592285, 0.8, 5.2436523)
 
 [node name="LedgeMid" type="CSGBox3D" parent="." unique_id=826845543]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.6, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.6, -3.7492676)
 use_collision = true
-size = Vector3(3, 1.2, 3)
+size = Vector3(3, 1.2, 5.501465)
 
 [node name="LedgeHigh" type="CSGBox3D" parent="." unique_id=1915078009]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3004608, -10)
@@ -50,19 +50,19 @@ use_collision = true
 size = Vector3(3, 2.6009216, 3)
 
 [node name="CrouchCeiling" type="CSGBox3D" parent="." unique_id=126878722]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.4, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.63549805, 0)
 use_collision = true
-size = Vector3(6, 0.4, 8)
+size = Vector3(6, 1.929004, 8)
 
 [node name="Platform1" type="CSGBox3D" parent="." unique_id=928715337]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.25, -3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.402344, 0.25, -3.824463)
 use_collision = true
-size = Vector3(3, 0.5, 3)
+size = Vector3(9.8046875, 0.5, 4.648926)
 
 [node name="Platform2" type="CSGBox3D" parent="." unique_id=1613239154]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.6, -7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.81543, 0.6, -8.546143)
 use_collision = true
-size = Vector3(3, 1.2, 3)
+size = Vector3(14.630859, 1.2, 6.092285)
 
 [node name="Player" parent="." unique_id=1498353547 instance=ExtResource("1_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 5)

@@ -33,19 +33,6 @@ func unregister_structural(gp: Vector3i) -> void:
 			_structural_connections[neighbour].erase(gp)
 	_structural_connections.erase(gp)
 
-func create_wheel_joint(part: WheelPart) -> HingeJoint3D:
-	var joint := HingeJoint3D.new()
-	joint.name = "WheelJoint_" + str(part.grid_position)
-	_vehicle.add_child(joint)
-	joint.global_transform = part.mechanical_body.global_transform
-	joint.set_node_a(joint.get_path_to(_vehicle))
-	joint.set_node_b(joint.get_path_to(part.mechanical_body))
-	joint.set_flag(HingeJoint3D.FLAG_USE_LIMIT, false)
-	if part.is_motor:
-		joint.set_flag(HingeJoint3D.FLAG_ENABLE_MOTOR, false)
-	_mechanical_joints[part.grid_position] = joint
-	return joint
-
 func create_generic_joint(part: VehiclePartBase, _linear_free_axis: int = -1, _angular_free_axis: int = 0) -> Generic6DOFJoint3D:
 	var joint := Generic6DOFJoint3D.new()
 	joint.name = "MechJoint_" + str(part.grid_position)

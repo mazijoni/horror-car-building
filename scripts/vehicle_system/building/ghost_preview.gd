@@ -1,8 +1,8 @@
 class_name GhostPreview
 extends Node3D
 
-var _place_ghost: MeshInstance3D
-var _highlight_ghost: MeshInstance3D
+var _place_ghost_root: Node3D
+var _highlight_ghost_root: Node3D
 
 var _mat_ok: StandardMaterial3D
 var _mat_bad: StandardMaterial3D
@@ -14,20 +14,15 @@ var is_valid: bool = false
 func _ready() -> void:
 	_build_materials()
 
-	_place_ghost = MeshInstance3D.new()
-	_place_ghost.material_override = _mat_ok
-	_place_ghost.visible = false
-	add_child(_place_ghost)
+	_place_ghost_root = Node3D.new()
+	_place_ghost_root.visible = false
+	add_child(_place_ghost_root)
 
-	# Shell-outline highlight: slightly larger box rendered back-face-only,
-	# so it peeks around the edges of the real block (classic outline trick).
-	_highlight_ghost = MeshInstance3D.new()
-	_highlight_ghost.material_override = _mat_highlight
-	_highlight_ghost.visible = false
-	var hl_box := BoxMesh.new()
-	hl_box.size = Vector3.ONE * VehicleRoot.CELL_SIZE * 1.06
-	_highlight_ghost.mesh = hl_box
-	add_child(_highlight_ghost)
+	# Shell-outline highlight: same model scaled slightly larger, rendered
+	# back-face-only so it peeks around the edges (classic outline trick).
+	_highlight_ghost_root = Node3D.new()
+	_highlight_ghost_root.visible = false
+	add_child(_highlight_ghost_root)
 
 func _build_materials() -> void:
 	_mat_ok = StandardMaterial3D.new()
@@ -58,40 +53,80 @@ func update_for_part(part_id: String, reg: PartRegistry) -> void:
 	var def := reg.get_definition(part_id)
 	if not def:
 		return
-	_set_place_mesh(def)
+	_set_place_mesh(def, reg)
 
-func _set_place_mesh(def: PartDefinition) -> void:
-	var m: Mesh
+func _set_place_mesh(def: PartDefinition, reg: PartRegistry) -> void:
+	for c in _place_ghost_root.get_children():
+		c.queue_free()
+	for c in _highlight_ghost_root.get_children():
+		c.queue_free()
+
+	var part := reg.instantiate_part(def.part_id)
+	if not part:
+		return
+
+	var mesh_children: Array[MeshInstance3D] = []
+	for child in part.get_children():
+		if child is MeshInstance3D:
+			mesh_children.append(child as MeshInstance3D)
+
+	if mesh_children.is_empty():
+		# Fallback: no mesh in catalog scene, build a generic shape
+		mesh_children = _build_fallback_meshes(def)
+		for mi in mesh_children:
+			part.add_child(mi)
+
+	for mi in mesh_children:
+		var place_mi := MeshInstance3D.new()
+		place_mi.mesh = mi.mesh
+		place_mi.transform = mi.transform
+		place_mi.material_override = _mat_ok
+		_place_ghost_root.add_child(place_mi)
+
+		# Slightly scale up the basis for the back-face outline trick
+		var hl_mi := MeshInstance3D.new()
+		hl_mi.mesh = mi.mesh
+		var hl_t := mi.transform
+		hl_t.basis = hl_t.basis.scaled(Vector3.ONE * 1.06)
+		hl_mi.transform = hl_t
+		hl_mi.material_override = _mat_highlight
+		_highlight_ghost_root.add_child(hl_mi)
+
+	part.queue_free()
+
+func _build_fallback_meshes(def: PartDefinition) -> Array[MeshInstance3D]:
+	var mi := MeshInstance3D.new()
 	if def.part_id.begins_with("wheel"):
 		var cyl := CylinderMesh.new()
 		cyl.top_radius    = WheelPart.WHEEL_RADIUS
 		cyl.bottom_radius = WheelPart.WHEEL_RADIUS
-		cyl.height        = WheelPart.WHEEL_WIDTH
-		m = cyl
+		cyl.height        = VehicleRoot.CELL_SIZE * 0.5
+		mi.mesh = cyl
 	else:
 		var box := BoxMesh.new()
 		box.size = Vector3.ONE * VehicleRoot.CELL_SIZE * 0.93
-		m = box
-	_place_ghost.mesh = m
-	_place_ghost.material_override = _mat_ok
+		mi.mesh = box
+	return [mi]
 
 func show_place(world_transform: Transform3D, valid: bool) -> void:
-	_place_ghost.global_transform = world_transform
-	_place_ghost.material_override = _mat_ok if valid else _mat_bad
-	_place_ghost.visible = true
+	_place_ghost_root.global_transform = world_transform
+	var mat := _mat_ok if valid else _mat_bad
+	for child in _place_ghost_root.get_children():
+		if child is MeshInstance3D:
+			(child as MeshInstance3D).material_override = mat
+	_place_ghost_root.visible = true
 	is_valid = valid
 
 func show_highlight(world_transform: Transform3D) -> void:
-	_highlight_ghost.global_transform = world_transform
-	_highlight_ghost.visible = true
+	_highlight_ghost_root.global_transform = world_transform
+	_highlight_ghost_root.visible = true
 
 func hide_place() -> void:
-	_place_ghost.visible = false
+	_place_ghost_root.visible = false
 
 func hide_highlight() -> void:
-	_highlight_ghost.visible = false
+	_highlight_ghost_root.visible = false
 
 func hide_all() -> void:
 	hide_place()
 	hide_highlight()
-
