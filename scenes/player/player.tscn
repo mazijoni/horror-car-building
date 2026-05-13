@@ -1,15 +1,15 @@
-[gd_scene format=4 uid="uid://3n5vw27gsvem"]
+[gd_scene format=3 uid="uid://bvvacde1bkdm4"]
 
-[ext_resource type="Script" uid="uid://ddujw151dgv40" path="res://scripts/player/player.gd" id="1_3vyb7"]
-[ext_resource type="Texture2D" uid="uid://ca6c6hgv6kn7n" path="res://icon.svg" id="2_fjrip"]
+[ext_resource type="Script" uid="uid://d1v8g8msipwx0" path="res://scripts/player/player.gd" id="1_3vyb7"]
+[ext_resource type="Texture2D" uid="uid://dx5is1ojkkpg0" path="res://icon.svg" id="2_fjrip"]
 [ext_resource type="Shader" uid="uid://boqebco5rvd7a" path="res://scripts/post-processing.gdshader" id="2_g2els"]
-[ext_resource type="Script" uid="uid://b3ulviqw2wvlr" path="res://scripts/fps.gd" id="3_dqkch"]
-[ext_resource type="FontFile" uid="uid://cflo6gk5l0fd1" path="res://fonts/HomeVideo-Bold.ttf" id="3_qlg0r"]
-[ext_resource type="Shader" uid="uid://dva6e5bivccqn" path="res://scripts/outline.gdshader" id="5_tuyoq"]
-[ext_resource type="Script" uid="uid://hnmidh3ui1h0" path="res://scripts/healtbar.gd" id="6_smehm"]
-[ext_resource type="FontFile" uid="uid://baj32uqx4sa6f" path="res://fonts/HomeVideo-Regular.ttf" id="7_ur7pv"]
-[ext_resource type="Texture2D" uid="uid://bwu5ryjhx11op" path="res://textures/PNG/Dark/texture_08.png" id="8_d2wvv"]
-[ext_resource type="Texture2D" uid="uid://cjdia48sv8tfg" path="res://textures/PNG/Orange/texture_09.png" id="8_y4r1p"]
+[ext_resource type="Script" path="res://scripts/fps.gd" id="3_dqkch"]
+[ext_resource type="FontFile" uid="uid://c1m4f816cofg8" path="res://fonts/HomeVideo-Bold.ttf" id="3_qlg0r"]
+[ext_resource type="Shader" path="res://scripts/outline.gdshader" id="5_tuyoq"]
+[ext_resource type="Script" path="res://scripts/healtbar.gd" id="6_smehm"]
+[ext_resource type="FontFile" uid="uid://bt3b6i6ehbp3m" path="res://fonts/HomeVideo-Regular.ttf" id="7_ur7pv"]
+[ext_resource type="Texture2D" uid="uid://bexpmrqg1ft8m" path="res://textures/PNG/Dark/texture_08.png" id="8_d2wvv"]
+[ext_resource type="Texture2D" uid="uid://b5sa35fgqk7wl" path="res://textures/PNG/Orange/texture_09.png" id="8_y4r1p"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_tx1dd"]
 radius = 0.4
@@ -49,9 +49,9 @@ shader_parameter/fade_length = 200.0
 
 [node name="Player" type="CharacterBody3D" unique_id=937026462 groups=["Player"]]
 script = ExtResource("1_3vyb7")
+jump_velocity = 6.0
 mouse_sens = 0.25
 head_tilt_strength = 0.2
-crouch_arm_look_strength = 0.7
 ledge_hang_offset = 1.6800000000000002
 vault_duration = 7.55
 
@@ -159,6 +159,24 @@ offset_bottom = 1129.0
 scale = Vector2(0.20600557, 0.009914103)
 texture_under = ExtResource("8_d2wvv")
 texture_progress = ExtResource("8_y4r1p")
+
+[node name="Label" type="Label" parent="Head/eyes/Camera3D/CanvasLayer" unique_id=2020574130]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("7_ur7pv")
+theme_override_font_sizes/font_size = 67
+text = "+"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Head/eyes/Camera3D" unique_id=965788976]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.051)

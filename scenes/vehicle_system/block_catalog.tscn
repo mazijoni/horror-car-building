@@ -1,0 +1,181 @@
+[gd_scene format=3 uid="uid://docwqt75dqwf"]
+
+[ext_resource type="Script" uid="uid://cfpyy53dnqppt" path="res://scripts/vehicle_system/parts/frame_part.gd" id="1_frame"]
+[ext_resource type="Texture2D" uid="uid://ch1l22ovol5sv" path="res://textures/PNG/Red/texture_10.png" id="2_d2puk"]
+[ext_resource type="Script" uid="uid://cm0qcil06dk2a" path="res://scripts/vehicle_system/parts/wheel_part.gd" id="2_wheel"]
+[ext_resource type="Texture2D" uid="uid://e6ul1k57i15x" path="res://textures/PNG/Green/texture_10.png" id="2_yxqyf"]
+[ext_resource type="Script" uid="uid://ccqlj3rxox0n0" path="res://scripts/vehicle_system/parts/engine_part.gd" id="3_engine"]
+[ext_resource type="Script" uid="uid://qagdmshu1q8v" path="res://scripts/vehicle_system/parts/fuel_tank_part.gd" id="4_fuel"]
+[ext_resource type="Script" uid="uid://dj1v30y7v8yrt" path="res://scripts/vehicle_system/parts/battery_part.gd" id="5_batt"]
+[ext_resource type="Script" uid="uid://e6aaa3i3ofsd" path="res://scripts/vehicle_system/parts/seat_part.gd" id="6_seat"]
+[ext_resource type="Script" uid="uid://cgpj7c43cchgv" path="res://scripts/vehicle_system/parts/hinge_part.gd" id="7_hinge"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d2puk"]
+albedo_texture = ExtResource("2_yxqyf")
+uv1_triplanar = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_std"]
+material = SubResource("StandardMaterial3D_d2puk")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_d2puk"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kexp3"]
+albedo_texture = ExtResource("2_d2puk")
+uv1_triplanar = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_yxqyf"]
+material = SubResource("StandardMaterial3D_kexp3")
+
+[sub_resource type="CylinderMesh" id="CylMesh_wheel"]
+top_radius = 0.55
+bottom_radius = 0.55
+height = 0.72
+
+[sub_resource type="BoxMesh" id="BoxMesh_engine"]
+size = Vector3(0.9, 1.2, 0.9)
+
+[sub_resource type="BoxMesh" id="BoxMesh_tank"]
+size = Vector3(0.92, 0.92, 0.92)
+
+[sub_resource type="BoxMesh" id="BoxMesh_seatbase"]
+size = Vector3(0.8, 0.3, 0.8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_seatback"]
+size = Vector3(0.8, 0.9, 0.15)
+
+[sub_resource type="CylinderMesh" id="CylMesh_hinge"]
+top_radius = 0.25
+bottom_radius = 0.25
+height = 0.9
+
+[node name="BlockCatalog" type="Node" unique_id=1003029940]
+
+[node name="FrameBlock" type="Node3D" parent="." unique_id=2051717073]
+script = ExtResource("1_frame")
+part_id = "frame_block"
+display_name = "Frame Block"
+description = "A basic structural frame block."
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="FrameBlock" unique_id=440322129]
+mesh = SubResource("BoxMesh_std")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FrameBlock" unique_id=876203843]
+shape = SubResource("BoxShape3D_d2puk")
+
+[node name="HeavyPlate" type="Node3D" parent="." unique_id=710782478]
+script = ExtResource("1_frame")
+part_id = "heavy_plate"
+display_name = "Heavy Plate"
+description = "A thick armour plate. Heavy but very tough."
+mass = 50.0
+max_health = 300.0
+break_force = 15000.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="HeavyPlate" unique_id=807683182]
+mesh = SubResource("BoxMesh_yxqyf")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HeavyPlate" unique_id=608564567]
+shape = SubResource("BoxShape3D_d2puk")
+
+[node name="Wheel" type="Node3D" parent="." unique_id=455769534]
+script = ExtResource("2_wheel")
+part_id = "wheel"
+display_name = "Wheel"
+description = "A motorized wheel."
+category = 1
+mass = 15.0
+is_mechanical = true
+max_health = 80.0
+break_force = 3000.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Wheel" unique_id=1235799660]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0)
+mesh = SubResource("CylMesh_wheel")
+
+[node name="WheelSteer" type="Node3D" parent="." unique_id=1881579074]
+script = ExtResource("2_wheel")
+is_motor = false
+is_steering = true
+part_id = "wheel_steer"
+display_name = "Steering Wheel"
+description = "A steerable wheel (no motor)."
+category = 1
+mass = 15.0
+is_mechanical = true
+max_health = 80.0
+break_force = 3000.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WheelSteer" unique_id=655883104]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0)
+mesh = SubResource("CylMesh_wheel")
+
+[node name="Engine" type="Node3D" parent="." unique_id=1921372294]
+script = ExtResource("3_engine")
+part_id = "engine"
+display_name = "Engine"
+description = "Converts fuel into mechanical power."
+category = 2
+mass = 40.0
+max_health = 150.0
+break_force = 6000.0
+fuel_consumption = 0.05
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Engine" unique_id=1059814792]
+mesh = SubResource("BoxMesh_engine")
+
+[node name="FuelTank" type="Node3D" parent="." unique_id=623348174]
+script = ExtResource("4_fuel")
+part_id = "fuel_tank"
+display_name = "Fuel Tank"
+description = "Stores liquid fuel for the engine."
+category = 2
+mass = 5.0
+max_health = 80.0
+break_force = 2000.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="FuelTank" unique_id=922486665]
+mesh = SubResource("BoxMesh_tank")
+
+[node name="Battery" type="Node3D" parent="." unique_id=539865594]
+script = ExtResource("5_batt")
+part_id = "battery"
+display_name = "Battery"
+description = "Stores electrical energy."
+category = 2
+mass = 8.0
+max_health = 80.0
+break_force = 2000.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Battery" unique_id=1788161227]
+mesh = SubResource("BoxMesh_tank")
+
+[node name="Seat" type="Node3D" parent="." unique_id=59728243]
+script = ExtResource("6_seat")
+part_id = "seat"
+display_name = "Seat"
+description = "A place to sit and drive."
+category = 3
+mass = 5.0
+max_health = 60.0
+break_force = 1500.0
+
+[node name="SeatBase" type="MeshInstance3D" parent="Seat" unique_id=1096292528]
+mesh = SubResource("BoxMesh_seatbase")
+
+[node name="SeatBack" type="MeshInstance3D" parent="Seat" unique_id=542592828]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0.26)
+mesh = SubResource("BoxMesh_seatback")
+
+[node name="Hinge" type="Node3D" parent="." unique_id=1969275161]
+script = ExtResource("7_hinge")
+part_id = "hinge"
+display_name = "Hinge"
+description = "A motorized rotational joint."
+category = 1
+mass = 8.0
+is_mechanical = true
+break_force = 4000.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Hinge" unique_id=950494240]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0)
+mesh = SubResource("CylMesh_hinge")

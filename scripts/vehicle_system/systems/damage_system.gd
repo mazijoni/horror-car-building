@@ -35,15 +35,3 @@ func on_part_health_zero(part: VehiclePartBase) -> void:
 	var gp := part.grid_position
 	_vehicle.remove_part(gp)
 	emit_signal("part_destroyed", gp)
-	if not _vehicle.connection_manager.is_all_connected():
-		_split_vehicle()
-
-func _split_vehicle() -> void:
-	var islands: Array[Array] = _vehicle.connection_manager.get_islands()
-	if islands.size() <= 1:
-		return
-	islands.sort_custom(func(a, b): return a.size() > b.size())
-	for i: int in range(1, islands.size()):
-		var island: Array = islands[i]
-		var new_veh: VehicleRoot = _vehicle._spawn_island_as_new_vehicle(island)
-		emit_signal("vehicle_split", new_veh)

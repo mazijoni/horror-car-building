@@ -5,7 +5,6 @@ extends Resource
 @export var grid_pos: Vector3i = Vector3i.ZERO
 @export var orientation_idx: int = 0
 @export var health: float = 100.0
-@export var color: Color = Color.WHITE
 @export var settings: Dictionary = {}
 
 func to_dict() -> Dictionary:
@@ -14,7 +13,6 @@ func to_dict() -> Dictionary:
 		"grid_pos": [grid_pos.x, grid_pos.y, grid_pos.z],
 		"orientation_idx": orientation_idx,
 		"health": health,
-		"color": [color.r, color.g, color.b],
 		"settings": settings,
 	}
 
@@ -25,7 +23,5 @@ static func from_dict(d: Dictionary) -> PartSaveData:
 	s.grid_pos = Vector3i(gp[0], gp[1], gp[2])
 	s.orientation_idx = d.get("orientation_idx", 0)
 	s.health = d.get("health", 100.0)
-	var c: Array = d.get("color", [1.0, 1.0, 1.0])
-	s.color = Color(c[0], c[1], c[2])
 	s.settings = d.get("settings", {})
 	return s

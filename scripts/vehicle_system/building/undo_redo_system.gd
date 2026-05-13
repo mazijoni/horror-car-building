@@ -15,22 +15,20 @@ class PlaceAction extends BuildAction:
 	var part_id: String
 	var grid_pos: Vector3i
 	var orient_idx: int
-	var color: Color
 	var _registry: PartRegistry
 
-	func _init(v: VehicleRoot, pid: String, gp: Vector3i, oidx: int, c: Color, reg: PartRegistry) -> void:
+	func _init(v: VehicleRoot, pid: String, gp: Vector3i, oidx: int, reg: PartRegistry) -> void:
 		vehicle = v
 		part_id = pid
 		grid_pos = gp
 		orient_idx = oidx
-		color = c
 		_registry = reg
 		description = "Place " + pid + " at " + str(gp)
 
 	func execute() -> void:
 		var part := _registry.instantiate_part(part_id)
 		if part:
-			vehicle.add_part(part, grid_pos, orient_idx, color)
+			vehicle.add_part(part, grid_pos, orient_idx)
 
 	func undo_action() -> void:
 		vehicle.remove_part(grid_pos)
@@ -52,34 +50,7 @@ class RemoveAction extends BuildAction:
 	func undo_action() -> void:
 		var part := _registry.instantiate_part(saved.part_id)
 		if part:
-			vehicle.add_part(part, saved.grid_pos, saved.orientation_idx, saved.color)
-
-class PaintAction extends BuildAction:
-	var vehicle: VehicleRoot
-	var grid_pos: Vector3i
-	var old_color: Color
-	var new_color: Color
-
-	func _init(v: VehicleRoot, gp: Vector3i, old_c: Color, new_c: Color) -> void:
-		vehicle = v
-		grid_pos = gp
-		old_color = old_c
-		new_color = new_c
-		description = "Paint at " + str(gp)
-
-	func execute() -> void:
-		var part := vehicle.parts.get(grid_pos) as VehiclePartBase
-		if part:
-			part.part_color = new_color
-			if part._mat:
-				part._mat.albedo_color = new_color
-
-	func undo_action() -> void:
-		var part := vehicle.parts.get(grid_pos) as VehiclePartBase
-		if part:
-			part.part_color = old_color
-			if part._mat:
-				part._mat.albedo_color = old_color
+			vehicle.add_part(part, saved.grid_pos, saved.orientation_idx)
 
 var _history: Array[BuildAction] = []
 var _redo_stack: Array[BuildAction] = []

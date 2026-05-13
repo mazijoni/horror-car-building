@@ -6,19 +6,6 @@ var rpm: float = 0.0
 var max_rpm: float = 3000.0
 var max_output: float = 500.0
 
-func _build_mesh() -> void:
-	_mesh_inst = MeshInstance3D.new()
-	var bm := BoxMesh.new()
-	bm.size = Vector3(VehicleRoot.CELL_SIZE * 0.9, VehicleRoot.CELL_SIZE * 1.2, VehicleRoot.CELL_SIZE * 0.9)
-	_mesh_inst.mesh = bm
-	_mesh_inst.material_override = _mat
-	add_child(_mesh_inst)
-
-func get_collision_shape() -> Shape3D:
-	var s := BoxShape3D.new()
-	s.size = Vector3(VehicleRoot.CELL_SIZE, VehicleRoot.CELL_SIZE * 1.2, VehicleRoot.CELL_SIZE)
-	return s
-
 func start() -> void:
 	if vehicle_root and vehicle_root.power_system:
 		var fuel := vehicle_root.power_system.get_fuel()
